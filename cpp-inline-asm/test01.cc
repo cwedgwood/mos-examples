@@ -14,15 +14,17 @@
 
 class test {
 
+// the NOPs are not required, they exist to aid in code inspection and
+// debugging
 public:
   char q1, q2;
   void addSomething() {
-    asm volatile("nop \n"
+    asm volatile("nop \n"              // for inspection/debugging
                  "ldy #0 \n"           // will be using indirect Y
                  "lda %[v_q1] \n"      // a value value is passed in
                  "adc #05 \n"          //
                  "sta  (%[p_q2]),y \n" // a pointer passed in
-                 "nop \n"
+                 "nop \n"              // for inspection/debugging
                  :
                  : [v_q1] "r"(this->q1), // pass in by value
                    [p_q2] "m"(this->q2)  // pass in pointer _of_
