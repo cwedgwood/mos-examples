@@ -11,24 +11,24 @@
 //
 // Indirect,X    STA ($44,X)   $81  2   6        -> write via ptr [$44 + X]
 // Indirect,Y    STA ($44),Y   $91  2   6        -> write via ptr [$44] + y
-
-class test {
-
+//
 // the NOPs are not required, they exist to aid in code inspection and
 // debugging
+class test {
 public:
   char q1, q2;
   void addSomething() {
-    asm volatile("nop \n"              // for inspection/debugging
-                 "ldy #0 \n"           // will be using indirect Y
-                 "lda %[v_q1] \n"      // a value value is passed in
-                 "adc #05 \n"          //
-                 "sta  (%[p_q2]),y \n" // a pointer passed in
-                 "nop \n"              // for inspection/debugging
-                 :
-                 : [v_q1] "r"(this->q1), // pass in by value
-                   [p_q2] "m"(this->q2)  // pass in pointer _of_
-                 : "a", "y", "p");
+    asm("nop               \n"  // -- for inspection/debugging
+        "ldy  #0           \n"  // will be using indirect Y
+        "lda  %[v_q1]      \n"  // value is passed in
+        "adc  #05          \n"  // alter the value
+        "sta  (%[p_q2]),y  \n"  // pointer passed in
+        "nop               \n"  // -- for inspection/debugging
+        :                       // outputs (none)
+        : [v_q1] "r"(this->q1), // input: pass in value
+          [p_q2] "m"(this->q2)  // input: pass in pointer _of_
+        : "a", "y", "p"         // clobbers: a & y are used
+    );
   };
   void status() { printf("st: @=0x%p q1=%d q2=%d sizeof %d\n", this, this->q1, this->q2, sizeof(this)); }
   int other() { return q1; }
@@ -58,6 +58,7 @@ int main() {
   o3->status();
 
 #ifdef __ATARI__
+  // Wait for input
   getchar();
 #endif
 }
